@@ -1,0 +1,123 @@
+package nl.hu.v1wac.firstapp.webservices;
+
+import nl.hu.v1wac.firstapp.Country;
+import nl.hu.v1wac.firstapp.ServiceProvider;
+import nl.hu.v1wac.firstapp.WorldService;
+
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.*;
+import java.util.List;
+
+@Path("/countries/")
+public class WorldResource {
+
+    public WorldService ws = ServiceProvider.getWorldService();
+
+    @GET
+    @Produces("application/json")
+    public List<Country> all() {
+        return ws.getAllCountries();
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("{code}")
+    public Country country(@PathParam("code") String code) {
+        return ws.getCountryByCode(code);
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("largestsurfaces")
+    public List<Country> largestsurfaces() {
+
+        return ws.get10LargestSurfaces();
+
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("largestpopulations")
+    public List<Country> largestpopulations() {
+
+        return ws.get10LargestPopulations();
+
+    }
+
+
+    @DELETE
+    @Produces("application/json")
+    @Path("{code}")
+    @RolesAllowed("user")
+    public Boolean delete(@PathParam("code") String code) {
+        Country c = country(code);
+        return ws.delete(c);
+    }
+
+    @PUT
+    @Produces("application/json")
+    @RolesAllowed("user")
+    public Boolean update(
+            @FormParam("code") String code,
+            @FormParam("name") String name,
+            @FormParam("capital") String capital,
+            @FormParam("continent") String continent,
+            @FormParam("region") String region,
+            @FormParam("surface") double surface,
+            @FormParam("population") int population,
+            @FormParam("government") String government,
+            @FormParam("latitude") Double latitude,
+            @FormParam("longitude") Double longitude
+    ) {
+
+        Country c = country(code);
+        c.setName(name);
+        c.setCapital(capital);
+        c.setContinent(continent);
+        c.setRegion(region);
+        c.setSurface(surface);
+        c.setPopulation(population);
+        c.setGovernment(government);
+        c.setLatitude(latitude);
+        c.setLongitude(longitude);
+        return ws.update(c);
+    }
+
+
+    @POST
+    @Produces("application/json")
+    @RolesAllowed("user")
+    public Boolean create(
+            @FormParam("code") String code,
+            @FormParam("iso3") String iso3,
+            @FormParam("name") String name,
+            @FormParam("capital") String capital,
+            @FormParam("continent") String continent,
+            @FormParam("region") String region,
+            @FormParam("surface") double surface,
+            @FormParam("population") int population,
+            @FormParam("government") String government,
+            @FormParam("latitude") Double latitude,
+            @FormParam("longitude") Double longitude
+    ) {
+
+        Country c = new Country(
+                code,
+                iso3,
+                name,
+                capital,
+                continent,
+                region,
+                surface,
+                population,
+                government,
+                latitude,
+                longitude
+        );
+
+        return ws.save(c);
+    }
+
+}
+
